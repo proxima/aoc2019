@@ -9,7 +9,7 @@ defmodule Wires do
   def dir_and_paces(<<direction::utf8, rest::binary>>), do: {direction, String.to_integer(rest)}
 
   def apply_movement(acc, origin, command) when is_binary(command), do: apply_movement(acc, origin, dir_and_paces(command))
-  def apply_movement(acc, origin, {_, 0}), do: { acc, origin }
+  def apply_movement(acc, origin, {_, 0}), do: { MapSet.put(acc, origin), origin }
   def apply_movement(acc, {x, y}, {?L, paces}), do: apply_movement(MapSet.put(acc, {x, y}), {x - 1, y}, {?L, paces - 1})
   def apply_movement(acc, {x, y}, {?R, paces}), do: apply_movement(MapSet.put(acc, {x, y}), {x + 1, y}, {?R, paces - 1})
   def apply_movement(acc, {x, y}, {?U, paces}), do: apply_movement(MapSet.put(acc, {x, y}), {x, y + 1}, {?U, paces - 1})
@@ -21,11 +21,22 @@ defmodule Wires do
     add_points(coords, new_origin, rest)
   end
 
+  def manhattan_distance({x1, y1}, {x2, y2}), do: abs(x1 - x2) + abs(y1 - y2)
+
   def to_coordinates(directions), do: add_points(MapSet.new, {0, 0}, directions)
 
   def part_one() do
-    read_input()
-    |> Enum.map(&to_coordinates/1)
+    [wire1, wire2] =
+      read_input()
+      |> Enum.map(&to_coordinates/1)
+
+    MapSet.intersection(wire1, wire2)
+    |> Enum.map(fn point ->
+      { point, manhattan_distance(point, {0, 0})}
+    end)
+    |> Enum.sort_by(&elem(&1, 1))
+    |> Enum.drop(1)
+    |> hd
     |> IO.inspect()
   end
 end
