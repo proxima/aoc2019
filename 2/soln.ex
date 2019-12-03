@@ -36,19 +36,16 @@ defmodule Opcodes do
 
   def part_two() do
     initial_program = read_input()
-    for noun <- 1..99 do
-      for verb <- 1..99 do
-        case initial_program
-          |> Map.put(1, noun)
-          |> Map.put(2, verb)
-          |> cycle(0)
-          |> Map.get(0) do
-          19690720 -> { noun, verb }
-          _ -> nil
-        end
+    for noun <- 1..99, verb <- 1..99 do
+      case initial_program
+        |> Map.put(1, noun)
+        |> Map.put(2, verb)
+        |> cycle(0)
+        |> Map.get(0) do
+        19690720 -> { noun, verb }
+        _ -> nil
       end
     end
-    |> List.flatten()
     |> Enum.reject(&is_nil/1)
     |> IO.inspect()
   end
